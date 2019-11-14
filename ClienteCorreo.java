@@ -1,7 +1,3 @@
-//
-// YodafyServidorIterativo
-// (CC) jjramos, 2012
-//
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +7,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.util.stream.Collectors; 
+import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class ClienteCorreo {
 
@@ -18,21 +17,20 @@ public class ClienteCorreo {
 		
 		String buferEnvio;
 		String buferRecepcion;
-		int bytesLeidos=0;
 		
 		// Nombre del host donde se ejecuta el servidor:
 		String host="localhost";
 		// Puerto en el que espera el servidor:
 		int port=5555;
 
-		char accion;
+		int accion;
 		String gmail="";
 		String gmaildestino="";
-		String contraseña="";		
+		String contrasena="";		
 		String []mensaje;
 		String mensajeresultado="";
-		bool conectado =true;
-		bool logeado =false;
+		boolean conectado =true;
+		boolean logeado =false;
 
 		// Socket para la conexión TCP
 		Socket socketServicio=null;
@@ -48,7 +46,6 @@ public class ClienteCorreo {
 			BufferedReader inReader = new BufferedReader(new InputStreamReader(socketServicio.getInputStream()));
 			
 			while(conectado){
-				buferEnvio.clear();
 				while(!logeado){
 					System.out.println("Quieres registrarte(1), logearte(2) o salir(3)?");
 					accion=myObj.nextInt();
@@ -66,25 +63,25 @@ public class ClienteCorreo {
 							}
 							buferEnvio=buferEnvio+gmail+" PASS";
 
-							while(contraseña==""){
-								System.out.println("Dime tu contraseña");
-								contraseña=myObj.nextLine();
+							while(contrasena==""){
+								System.out.println("Dime tu contrasena");
+								contrasena=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+contraseña;
+							buferEnvio=buferEnvio+contrasena;
 
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]==200){
+							if(mensaje[0]=="200"){
 								logeado=true;
 								System.out.println("Registrado con exito");
 							}else{
-								if(mensaje[0]==400){
+								if(mensaje[0]=="400"){
 									System.out.println("ERROR: Ese usuario ya está registrado");
 									gmail="";
-									contraseña="";
+									contrasena="";
 								}
 							}
 						break;
@@ -96,24 +93,24 @@ public class ClienteCorreo {
 							}
 							buferEnvio=buferEnvio+gmail+" PASS";
 
-							while(contraseña==""){
-								System.out.println("Dime tu contraseña");
-								contraseña=myObj.nextLine();
+							while(contrasena==""){
+								System.out.println("Dime tu contrasena");
+								contrasena=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+contraseña;
+							buferEnvio=buferEnvio+contrasena;
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]==201){
+							if(mensaje[0]=="201"){
 								logeado=true;
 								System.out.println("Logeado con exito");
 							}else{
-								if(mensaje[0]==401){
-									System.out.println("ERROR: contraseña incorrecta o no existe el usuario");
+								if(mensaje[0]=="401"){
+									System.out.println("ERROR: contrasena incorrecta o no existe el usuario");
 									gmail="";
-									contraseña="";
+									contrasena="";
 								}
 							}
 						break;
@@ -140,12 +137,12 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]==202){
-								mensaje.remove(0);
+							if(mensaje[0]=="202"){
+								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
 								System.out.println(mensajeresultado);
 							}else{
-								if(mensaje[0]==402){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
+								if(mensaje[0]=="402"){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
 									System.out.println("ERROR: gmail incorrecto o no registrado");
 								}
 							}
@@ -156,7 +153,7 @@ public class ClienteCorreo {
 								System.out.println("Dime el gmail del destinatario");
 								gmaildestino=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+gmaildestino+" MESSAGE ";
+							buferEnvio=buferEnvio+gmaildestino+" FROM "+gmail+" MESSAGE ";
 
 							while(mensajeresultado==""){
 								System.out.println("Dime el mensaje");
@@ -168,10 +165,10 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]==203){
+							if(mensaje[0]=="203"){
 								System.out.println("Mensaje enviado con éxito");
 							}else{
-								if(mensaje[0]==403){
+								if(mensaje[0]=="403"){
 									System.out.println("ERROR: destinatario incorrecto");
 									gmaildestino="";
 								}
@@ -184,12 +181,12 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]==204){
-								mensaje.remove(0);
+							if(mensaje[0]=="204"){
+								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
 								System.out.println(mensajeresultado);
 							}else{
-								if(mensaje[0]==404){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
+								if(mensaje[0]=="404"){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
 									System.out.println("ERROR: gmail incorrecto");
 								}
 							}
@@ -200,7 +197,6 @@ public class ClienteCorreo {
 					}
 					}
 				}
-			}
 			System.out.println("Adios!!");
 
 			socketServicio.close();
