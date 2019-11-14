@@ -22,7 +22,7 @@ public class ProcesadorCorreo extends Thread {
 	private OutputStream outputStream;
 	private PrintWriter outPrinter;
     private BufferedReader inReader;
-    private ArrayList<UsuarioCorreo> usuarios = new ArrayList<UsuarioCorreo>();
+    private UsuariosCorreo usuarios = new UsuariosCorreo();
 	
 	// Para que la respuesta sea siempre diferente, usamos un generador de números aleatorios.
 	private Random random;
@@ -68,14 +68,10 @@ public class ProcesadorCorreo extends Thread {
                 correoRecibido = datosSeparados[2];
                 passwordRecibida = datosSeparados[4];
 
-                for(int i = 0; i < usuarios.size() && !usuarioYaRegistrado; ++i){
-                    if(usuarios.get(i).getEmail() == correoRecibido){
-                        usuarioYaRegistrado = true;
-                    }
-                }
+                usuarioYaRegistrado = usuarios.existeCorreo(correoRecibido);
                 
                 if(!usuarioYaRegistrado){
-                    usuarios.add(new UsuarioCorreo(correoRecibido, passwordRecibida));
+                    usuarios.aniadirUsuario(new UsuarioCorreo(correoRecibido, passwordRecibida));
                     respuesta = "200 OK";
                 }else{
                     respuesta = "400 ERROR Este email ya ha sido registrado";
@@ -84,20 +80,12 @@ public class ProcesadorCorreo extends Thread {
                 correoRecibido = datosSeparados[2];
                 passwordRecibida = datosSeparados[4];
 
-                for(int i = 0; i < usuarios.size() && !usuarioCorrecto; ++i){
-                    if(usuarios.get(i).getEmail() == correoRecibido){
-                        if(usuarios.get(i).getPassword() == passwordRecibida){
-                            usuarioCorrecto = true;
-                        }else{
-                            usuarioCorrecto = false;
-                        }
-                    }
+                usuarioCorrecto = usuarios.compruebaCombinacionEmailPass(correoRecibido, passwordRecibida);
 
-                    if(usuarioCorrecto){
-                        respuesta = "201 OK";
-                    }else{
-                        respuesta = "401 ERROR Usuario o contraseña incorrectos";
-                    }
+                if(usuarioCorrecto){
+                    respuesta = "201 OK";
+                }else{
+                    respuesta = "401 ERROR Usuario o contraseña incorrectos";
                 }
             }else if (datosSeparados[0] == "2"){
                 correoRecibido = datosSeparados[2];
