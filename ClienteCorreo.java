@@ -26,9 +26,11 @@ public class ClienteCorreo {
 		int port=5555;
 
 		char accion;
-		String gmail;
-		String contraseña;		
+		String gmail="";
+		String gmaildestino="";
+		String contraseña="";		
 		String []mensaje;
+		String mensajeresultado="";
 		bool conectado =true;
 		bool logeado =false;
 
@@ -48,21 +50,28 @@ public class ClienteCorreo {
 			while(conectado){
 				buferEnvio.clear();
 				while(!logeado){
-					System.out.println("Quieres registrarte(1), logearte(2) o salir(3)");
+					System.out.println("Quieres registrarte(1), logearte(2) o salir(3)?");
 					accion=myObj.nextInt();
-					if(accion!=1 && accion!=2 && accion!=3 ){
-						System.out.println("ACCION INVALIDA \nQuieres registrarte(1), logearte(2) o salir(3)");
+					while(accion!=1 && accion!=2 && accion!=3 ){
+						System.out.println("ACCION INVALIDA \nQuieres registrarte(1), logearte(2) o salir(3)?");
 						accion=myObj.nextInt();
 					}
 					switch (accion){
 						case 1:
 							buferEnvio="0 REGISTER ";
-							System.out.println("Dime tu gmail");
-							gmail=myObj.nextLine();
+
+							while(gmail==""){
+								System.out.println("Dime tu gmail");
+								gmail=myObj.nextLine();
+							}
 							buferEnvio=buferEnvio+gmail+" PASS";
-							System.out.println("Dime tu contraseña");
-							contraseña=myObj.nextLine();
+
+							while(contraseña==""){
+								System.out.println("Dime tu contraseña");
+								contraseña=myObj.nextLine();
+							}
 							buferEnvio=buferEnvio+contraseña;
+
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
@@ -74,16 +83,23 @@ public class ClienteCorreo {
 							}else{
 								if(mensaje[0]==400){
 									System.out.println("ERROR: Ese usuario ya está registrado");
+									gmail="";
+									contraseña="";
 								}
 							}
 						break;
 						case 2:
 							buferEnvio="1 LOGIN ";
-							System.out.println("Dime tu gmail");
-							gmail=myObj.nextLine();
+							while(gmail==""){
+								System.out.println("Dime tu gmail");
+								gmail=myObj.nextLine();
+							}
 							buferEnvio=buferEnvio+gmail+" PASS";
-							System.out.println("Dime tu contraseña");
-							contraseña=myObj.nextLine();
+
+							while(contraseña==""){
+								System.out.println("Dime tu contraseña");
+								contraseña=myObj.nextLine();
+							}
 							buferEnvio=buferEnvio+contraseña;
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
@@ -96,6 +112,8 @@ public class ClienteCorreo {
 							}else{
 								if(mensaje[0]==401){
 									System.out.println("ERROR: contraseña incorrecta o no existe el usuario");
+									gmail="";
+									contraseña="";
 								}
 							}
 						break;
@@ -106,38 +124,85 @@ public class ClienteCorreo {
 					}
 				}
 
-				if(conectado){
-					
+				if(conectado){		//El usuario ya va ha estar identificado el gmail tiene que estar bien
+					System.out.println("Quieres ver tu bandeja de entrada(1), enviar un mensaje(2), ver tu bandeja de salida(3) o salir(4)");
+					accion=myObj.nextInt();
+					while(accion!=1 && accion!=2 && accion!=3 && accion !=4 ){
+						System.out.println("ACCION INVALIDA \nQuieres ver tu bandeja de entrada(1), enviar un mensaje(2), ver tu bandeja de salida(3) o salir(4)");
+						accion=myObj.nextInt();
+					}
+					switch (accion){
+						case 1:
+							buferEnvio="2 INBOX ";
+							buferEnvio=buferEnvio+gmail;
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+							if(mensaje[0]==202){
+								mensaje.remove(0);
+								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
+								System.out.println(mensajeresultado);
+							}else{
+								if(mensaje[0]==402){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
+									System.out.println("ERROR: gmail incorrecto o no registrado");
+								}
+							}
+						break;
+						case 2:
+							buferEnvio="3 SENDTO ";
+							while(gmaildestino==""){
+								System.out.println("Dime el gmail del destinatario");
+								gmaildestino=myObj.nextLine();
+							}
+							buferEnvio=buferEnvio+gmaildestino+" MESSAGE ";
+
+							while(mensajeresultado==""){
+								System.out.println("Dime el mensaje");
+								mensajeresultado=myObj.nextLine();
+							}
+
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+							if(mensaje[0]==203){
+								System.out.println("Mensaje enviado con éxito");
+							}else{
+								if(mensaje[0]==403){
+									System.out.println("ERROR: destinatario incorrecto");
+									gmaildestino="";
+								}
+							}
+						break;
+						case 3:
+							buferEnvio="4 OUTBOX "+ gmail;
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+							if(mensaje[0]==204){
+								mensaje.remove(0);
+								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
+								System.out.println(mensajeresultado);
+							}else{
+								if(mensaje[0]==404){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
+									System.out.println("ERROR: gmail incorrecto");
+								}
+							}
+						break;
+						case 4:
+							conectado=false;
+						break;
+					}
+					}
 				}
 			}
-			
+			System.out.println("Adios!!");
 
-
-
-
-
-
-			// Si queremos enviar una cadena de caracteres por un OutputStream, hay que pasarla primero
-			// a un array de bytes:
-			buferEnvio="Al monte del volcán debes ir sin demora";
-			
-			// Enviamos el array por el outputStream;
-			outPrinter.println(buferEnvio);
-
-			// Aunque le indiquemos a TCP que queremos enviar varios arrays de bytes, sólo
-			// los enviará efectivamente cuando considere que tiene suficientes datos que enviar...
-			// Podemos usar "flush()" para obligar a TCP a que no espere para hacer el envío:
-			outPrinter.flush();
-			
-			// Leemos la respuesta del servidor. Para ello le pasamos un array de bytes, que intentará
-			// rellenar.
-			buferRecepcion = inReader.readLine();
-
-			// MOstremos la cadena de caracteres recibidos:
-			System.out.println("Recibido: " + buferRecepcion + "\n");
-			
-			// Una vez terminado el servicio, cerramos el socket (automáticamente se cierran
-			// el inpuStream  y el outputStream)
 			socketServicio.close();
 			// Excepciones:
 		} catch (UnknownHostException e) {
