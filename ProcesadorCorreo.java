@@ -99,10 +99,22 @@ public class ProcesadorCorreo extends Thread {
                         respuesta = "401 ERROR Usuario o contraseña incorrectos";
                     }
                 }
+            }else if (datosSeparados[0] == "2"){
+                correoRecibido = datosSeparados[2];
+
+                if(correoRecibido != ""){
+                    
+                }else{
+                    respuesta = "402 ERROR Cliente no identificado";
+                }
             }
             
             // Escribimos la respuesta
-			outPrinter.println(respuesta);
+            outPrinter.println(respuesta);
+            
+            respuesta = "500 ERROR Opción no correcta";
+
+            
 			
 			
 		} catch (IOException e) {
