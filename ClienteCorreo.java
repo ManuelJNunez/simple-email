@@ -24,11 +24,14 @@ public class ClienteCorreo {
 		String host="localhost";
 		// Puerto en el que espera el servidor:
 		int port=5555;
+
 		char accion;
-		string gmail;
-		string contraseña;
+		String gmail;
+		String contraseña;		
+		String []mensaje;
 		bool conectado =true;
 		bool logeado =false;
+
 		// Socket para la conexión TCP
 		Socket socketServicio=null;
 		Scanner myObj = new Scanner(System.in);
@@ -45,19 +48,66 @@ public class ClienteCorreo {
 			while(conectado){
 				buferEnvio.clear();
 				while(!logeado){
-					System.out.println<<"Quieres logearte(l), registrarte(r) o salir(s)";
-					accion=myObj.nextLine();
-					if(accion[0]!=l && accion[0]!=r && accion[0]!=s ){
-						System.out.println<<"ACCION INVALIDA \nQuieres logearte(l), registrarte(r) o salir(s)";
-						accion=myObj.nextLine();
+					System.out.println("Quieres registrarte(1), logearte(2) o salir(3)");
+					accion=myObj.nextInt();
+					if(accion!=1 && accion!=2 && accion!=3 ){
+						System.out.println("ACCION INVALIDA \nQuieres registrarte(1), logearte(2) o salir(3)");
+						accion=myObj.nextInt();
 					}
 					switch (accion){
-						case r:
-							buferEnvio=buferEnvio+"REGISTER ";
-							cout<<"Dime tu gmail";
-							cin
+						case 1:
+							buferEnvio="0 REGISTER ";
+							System.out.println("Dime tu gmail");
+							gmail=myObj.nextLine();
+							buferEnvio=buferEnvio+gmail+" PASS";
+							System.out.println("Dime tu contraseña");
+							contraseña=myObj.nextLine();
+							buferEnvio=buferEnvio+contraseña;
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+							if(mensaje[0]==200){
+								logeado=true;
+								System.out.println("Registrado con exito");
+							}else{
+								if(mensaje[0]==400){
+									System.out.println("ERROR: Ese usuario ya está registrado");
+								}
+							}
+						break;
+						case 2:
+							buferEnvio="1 LOGIN ";
+							System.out.println("Dime tu gmail");
+							gmail=myObj.nextLine();
+							buferEnvio=buferEnvio+gmail+" PASS";
+							System.out.println("Dime tu contraseña");
+							contraseña=myObj.nextLine();
+							buferEnvio=buferEnvio+contraseña;
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+							if(mensaje[0]==201){
+								logeado=true;
+								System.out.println("Logeado con exito");
+							}else{
+								if(mensaje[0]==401){
+									System.out.println("ERROR: contraseña incorrecta o no existe el usuario");
+								}
+							}
+						break;
+						case 3:
+							conectado=false;
+							logeado=true;
 						break;
 					}
+				}
+
+				if(conectado){
+					
 				}
 			}
 			
