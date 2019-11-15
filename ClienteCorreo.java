@@ -153,12 +153,20 @@ public class ClienteCorreo {
 								System.out.println("Dime el gmail del destinatario");
 								gmaildestino=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+gmaildestino+" FROM "+gmail+" MESSAGE ";
+							buferEnvio=buferEnvio+ gmaildestino + " FROM "+gmail+" SUBJECT ";
+
+							while(mensajeresultado==""){
+								System.out.println("Dime el asunto del mensaje");
+								mensajeresultado=myObj.nextLine();
+							}
+							buferEnvio=buferEnvio + mensajeresultado;
+							mensajeresultado="";
 
 							while(mensajeresultado==""){
 								System.out.println("Dime el mensaje");
 								mensajeresultado=myObj.nextLine();
 							}
+							buferEnvio=buferEnvio + " MESSAGE " + mensajeresultado;
 
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
