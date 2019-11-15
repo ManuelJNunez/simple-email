@@ -22,7 +22,8 @@ public class ProcesadorCorreo extends Thread {
 	private OutputStream outputStream;
 	private PrintWriter outPrinter;
     private BufferedReader inReader;
-    private ArrayList<UsuarioCorreo> usuarios = new ArrayList<UsuarioCorreo>();
+    private UsuariosCorreo usuarios = new UsuariosCorreo();
+    private MensajesCorreo mensajes = new MensajesCorreo();
 	
 	// Para que la respuesta sea siempre diferente, usamos un generador de números aleatorios.
 	private Random random;
@@ -44,9 +45,12 @@ public class ProcesadorCorreo extends Thread {
         String datosRecibidos;
         String[] datosSeparados;
         String correoRecibido;
+        String correoDestino;
         String passwordRecibida;
         boolean usuarioYaRegistrado = false;
         boolean usuarioCorrecto = false;
+        String asunto;
+        String mensajeEnviado;
 		
 		// Array de bytes para enviar la respuesta. Podemos reservar memoria cuando vayamos a enviarla:
 		String respuesta = "500 ERROR Opción no correcta";
@@ -68,14 +72,10 @@ public class ProcesadorCorreo extends Thread {
                 correoRecibido = datosSeparados[2];
                 passwordRecibida = datosSeparados[4];
 
-                for(int i = 0; i < usuarios.size() && !usuarioYaRegistrado; ++i){
-                    if(usuarios.get(i).getEmail() == correoRecibido){
-                        usuarioYaRegistrado = true;
-                    }
-                }
+                usuarioYaRegistrado = usuarios.existeCorreo(correoRecibido);
                 
                 if(!usuarioYaRegistrado){
-                    usuarios.add(new UsuarioCorreo(correoRecibido, passwordRecibida));
+                    usuarios.aniadirUsuario(new UsuarioCorreo(correoRecibido, passwordRecibida));
                     respuesta = "200 OK";
                 }else{
                     respuesta = "400 ERROR Este email ya ha sido registrado";
@@ -84,38 +84,50 @@ public class ProcesadorCorreo extends Thread {
                 correoRecibido = datosSeparados[2];
                 passwordRecibida = datosSeparados[4];
 
-                for(int i = 0; i < usuarios.size() && !usuarioCorrecto; ++i){
-                    if(usuarios.get(i).getEmail() == correoRecibido){
-                        if(usuarios.get(i).getPassword() == passwordRecibida){
-                            usuarioCorrecto = true;
-                        }else{
-                            usuarioCorrecto = false;
-                        }
-                    }
+                usuarioCorrecto = usuarios.compruebaCombinacionEmailPass(correoRecibido, passwordRecibida);
 
-                    if(usuarioCorrecto){
-                        respuesta = "201 OK";
-                    }else{
-                        respuesta = "401 ERROR Usuario o contraseña incorrectos";
-                    }
+                if(usuarioCorrecto){
+                    respuesta = "201 OK";
+                }else{
+                    respuesta = "401 ERROR Usuario o contraseña incorrectos";
                 }
             }else if (datosSeparados[0] == "2"){
                 correoRecibido = datosSeparados[2];
 
                 if(correoRecibido != ""){
-                    
+                    ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+
+                    respuesta = recibidos.toString();
                 }else{
                     respuesta = "402 ERROR Cliente no identificado";
+                }
+            }else if(datosSeparados[0] == "3"){
+                correoDestino = datosSeparados[1];
+                correoRecibido = datosSeparados[3];
+                asunto = datosSeparados[5];
+                mensajeEnviado = datosSeparados[7];
+
+                usuarioYaRegistrado = usuarios.existeCorreo(correoDestino);
+
+                if(usuarioYaRegistrado){
+                    mensajes.aniadirMensaje(new MensajeCorreo(correoRecibido, correoDestino, asunto, mensajeEnviado));
+                    respuesta = "203 OK";
+                }else{
+                    respuesta = "403 ERROR Usuario no existe";
+                }
+            }else if(datosSeparados[0] == "4"){
+                correoRecibido = datosSeparados[1];
+
+                if(correoRecibido != ""){
+                    ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+                    respuesta = recibidos.toString();
+                }else{
+                    respuesta = "404 ERROR Cliente no autenticado";
                 }
             }
             
             // Escribimos la respuesta
-            outPrinter.println(respuesta);
-            
-            respuesta = "500 ERROR Opción no correcta";
-
-            
-			
+            outPrinter.println(respuesta);			
 			
 		} catch (IOException e) {
 			System.err.println("Error al obtener los flujso de entrada/salida.");

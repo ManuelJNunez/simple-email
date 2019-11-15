@@ -4,17 +4,31 @@ public class MensajeCorreo {
     private String destinatario;
     private String asunto;
     private String mensaje;
-    private boolean leido;
 
     MensajeCorreo(String emisor, String destinatario, String asunto, String mensaje){
         this.emisor = emisor;
         this.destinatario = destinatario;
         this.asunto = asunto;
         this.mensaje = mensaje;
-        this.leido = false;
+    }
+
+    String getEmisor(){
+        return this.emisor;
+    }
+
+    String getDestinatario(){
+        return this.destinatario;
+    }
+
+    String getAsunto(){
+        return this.asunto;
+    }
+
+    String getMensaje(){
+        return this.mensaje;
     }
 
     public String toString(){
-        return "Emisor:" + this.emisor + "\nAsunto:" + this.asunto + "\nMensaje:\n" + this.mensaje + "\n";
+        return "Enviado por: " + this.emisor + "\n" + "Para: " + this.destinatario + "\n" + "Asunto: "  + this.asunto + "\n" + "Mensaje:\n" + this.mensaje + "\n";
     }
 }
