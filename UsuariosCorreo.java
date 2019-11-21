@@ -5,7 +5,7 @@ public class UsuariosCorreo{
 
     boolean existeCorreo(String correo) {
         for(int i = 0; i < usuarios.size(); ++i){
-            if(usuarios.get(i).getEmail() == correo){
+            if(usuarios.get(i).getEmail().equals(correo)){
                 return true;
             }
         }
@@ -19,11 +19,9 @@ public class UsuariosCorreo{
 
     boolean compruebaCombinacionEmailPass(String correo, String password){
         for(int i = 0; i < usuarios.size(); ++i){
-            if(usuarios.get(i).getEmail() == correo){
-                if(usuarios.get(i).getPassword() == password){
+            if(usuarios.get(i).getEmail().equals(correo)){
+                if(usuarios.get(i).getPassword().equals(password)){
                     return true;
-                }else{
-                    return false;
                 }
             }
         }

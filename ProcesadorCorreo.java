@@ -94,12 +94,13 @@ public class ProcesadorCorreo extends Thread {
             }else if (datosSeparados[0].equals("2")){
                 correoRecibido = datosSeparados[2];
 
-                if(correoRecibido != ""){
-                    ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
 
-                    respuesta = recibidos.toString();
+                ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+
+                if(recibidos.size() > 0){
+                    respuesta = "202" + recibidos.toString();
                 }else{
-                    respuesta = "402 ERROR Cliente no identificado";
+                    respuesta = "402 El usuario no tiene mensajes";
                 }
             }else if(datosSeparados[0].equals("3")){
                 correoDestino = datosSeparados[1];

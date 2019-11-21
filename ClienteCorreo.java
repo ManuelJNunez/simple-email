@@ -53,37 +53,35 @@ public class ClienteCorreo {
 						System.out.println("ACCION INVALIDA \nQuieres registrarte(1), logearte(2) o salir(3)?");
 						accion=myObj.nextInt();
 					}
+
+					myObj.nextLine();
 					switch (accion){
 						case 1:
 							buferEnvio="0 REGISTER ";
 
-							myObj.nextLine();
 
-							while(gmail==""){
+							while(gmail.equals("")){
 								System.out.println("Dime tu gmail");
 								gmail=myObj.nextLine();
 							}
 							buferEnvio=buferEnvio+gmail+" PASS ";
 
-							while(contrasena==""){
+							while(contrasena.equals("")){
 								System.out.println("Dime tu contrasena");
 								contrasena=myObj.nextLine();
 							}
 							buferEnvio=buferEnvio+contrasena;
-
-							System.out.println(buferEnvio);
 
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							System.out.println(mensaje[0]);
-							if(mensaje[0]=="200"){
+							if(mensaje[0].equals("200")){
 								logeado=true;
 								System.out.println("Registrado con exito");
 							}else{
-								if(mensaje[0]=="400"){
+								if(mensaje[0].equals("400")){
 									System.out.println("ERROR: Ese usuario ya está registrado");
 									gmail="";
 									contrasena="";
@@ -92,13 +90,13 @@ public class ClienteCorreo {
 						break;
 						case 2:
 							buferEnvio="1 LOGIN ";
-							while(gmail==""){
+							while(gmail.equals("")){
 								System.out.println("Dime tu gmail");
 								gmail=myObj.nextLine();
 							}
 							buferEnvio=buferEnvio+gmail+" PASS ";
 
-							while(contrasena==""){
+							while(contrasena.equals("")){
 								System.out.println("Dime tu contrasena");
 								contrasena=myObj.nextLine();
 							}
@@ -108,11 +106,11 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]=="201"){
+							if(mensaje[0].equals("201")){
 								logeado=true;
 								System.out.println("Logeado con exito");
 							}else{
-								if(mensaje[0]=="401"){
+								if(mensaje[0].equals("401")){
 									System.out.println("ERROR: contrasena incorrecta o no existe el usuario");
 									gmail="";
 									contrasena="";
@@ -133,6 +131,9 @@ public class ClienteCorreo {
 						System.out.println("ACCION INVALIDA \nQuieres ver tu bandeja de entrada(1), enviar un mensaje(2), ver tu bandeja de salida(3) o salir(4)");
 						accion=myObj.nextInt();
 					}
+
+					myObj.nextLine();
+
 					switch (accion){
 						case 1:
 							buferEnvio="2 INBOX ";
@@ -142,13 +143,13 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]=="202"){
+							if(mensaje[0].equals("202")){
 								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
 								System.out.println(mensajeresultado);
 							}else{
-								if(mensaje[0]=="402"){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
-									System.out.println("ERROR: gmail incorrecto o no registrado");
+								if(mensaje[0].equals("402")){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
+									System.out.println("ERROR: No hay mensajes");
 								}
 							}
 						break;
@@ -178,10 +179,10 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]=="203"){
+							if(mensaje[0].equals("203")){
 								System.out.println("Mensaje enviado con éxito");
 							}else{
-								if(mensaje[0]=="403"){
+								if(mensaje[0].equals("403")){
 									System.out.println("ERROR: destinatario incorrecto");
 									gmaildestino="";
 								}
@@ -194,12 +195,12 @@ public class ClienteCorreo {
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-							if(mensaje[0]=="204"){
+							if(mensaje[0].equals("204")){
 								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
 								System.out.println(mensajeresultado);
 							}else{
-								if(mensaje[0]=="404"){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
+								if(mensaje[0].equals("404")){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
 									System.out.println("ERROR: gmail incorrecto");
 								}
 							}
@@ -207,7 +208,9 @@ public class ClienteCorreo {
 						case 4:
 							conectado=false;
 						break;
-					}
+						}
+
+						accion = 0;
 					}
 				}
 			System.out.println("Adios!!");
