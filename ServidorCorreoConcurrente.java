@@ -16,6 +16,7 @@ public class ServidorCorreoConcurrente {
 		int bytesLeidos=0;
 		ServerSocket socketServidor;
 		Socket socketServicio = null;
+		ProcesadorCorreo procesador = null;
 
 		
 		try {
@@ -33,11 +34,13 @@ public class ServidorCorreoConcurrente {
 				// socketServicio=... (completar)
 				//////////////////////////////////////////////////
 				socketServicio = socketServidor.accept();
+				
 
 				// Creamos un objeto de la clase ProcesadorYodafy, pasándole como 
 				// argumento el nuevo socket, para que realice el procesamiento
 				// Este esquema permite que se puedan usar hebras más fácilmente.
-				ProcesadorCorreo procesador=new ProcesadorCorreo(socketServicio);
+				procesador = new ProcesadorCorreo(socketServicio);
+								
 				procesador.run();
 				
 			} while (true);

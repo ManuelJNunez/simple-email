@@ -132,8 +132,6 @@ public class ClienteCorreo {
 						accion=myObj.nextInt();
 					}
 
-					myObj.nextLine();
-
 					switch (accion){
 						case 1:
 							buferEnvio="2 INBOX ";

@@ -62,73 +62,83 @@ public class ProcesadorCorreo extends Thread {
             inputStream = socketServicio.getInputStream();
             outPrinter = new PrintWriter(outputStream, true);
             inReader = new BufferedReader(new InputStreamReader(inputStream));
-            
-            // Leemos una petición de entrada y generamos respuesta
-            datosRecibidos = inReader.readLine();
-            
-            datosSeparados = datosRecibidos.split(" ");
 
-            if(datosSeparados[0].equals("0")){
-                correoRecibido = datosSeparados[2];
-                passwordRecibida = datosSeparados[4];
-
-                usuarioYaRegistrado = usuarios.existeCorreo(correoRecibido);
+            while(true){
+            
+                // Leemos una petición de entrada y generamos respuesta
+                datosRecibidos = inReader.readLine();
                 
-                if(!usuarioYaRegistrado){
-                    usuarios.aniadirUsuario(new UsuarioCorreo(correoRecibido, passwordRecibida));
-                    respuesta = "200 OK";
-                }else{
-                    respuesta = "400 ERROR Este email ya ha sido registrado";
-                }
-            }else if(datosSeparados[0].equals("1")){
-                correoRecibido = datosSeparados[2];
-                passwordRecibida = datosSeparados[4];
+                datosSeparados = datosRecibidos.split(" ");
 
-                usuarioCorrecto = usuarios.compruebaCombinacionEmailPass(correoRecibido, passwordRecibida);
+                if(datosSeparados[0].equals("0")){
+                    correoRecibido = datosSeparados[2];
+                    passwordRecibida = datosSeparados[4];
 
-                if(usuarioCorrecto){
-                    respuesta = "201 OK";
-                }else{
-                    respuesta = "401 ERROR Usuario o contraseña incorrectos";
-                }
-            }else if (datosSeparados[0].equals("2")){
-                correoRecibido = datosSeparados[2];
+                    System.out.println(correoRecibido);
+                    System.out.println(passwordRecibida);
 
+                    usuarioYaRegistrado = usuarios.existeCorreo(correoRecibido);
+                    
+                    if(!usuarioYaRegistrado){
+                        usuarios.aniadirUsuario(new UsuarioCorreo(correoRecibido, passwordRecibida));
+                        respuesta = "200 OK";
+                    }else{
+                        respuesta = "400 ERROR Este email ya ha sido registrado";
+                    }
+                }else if(datosSeparados[0].equals("1")){
+                    correoRecibido = datosSeparados[2];
+                    passwordRecibida = datosSeparados[4];
 
-                ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+                    System.out.println(correoRecibido);
+                    System.out.println(passwordRecibida);
 
-                if(recibidos.size() > 0){
-                    respuesta = "202" + recibidos.toString();
-                }else{
-                    respuesta = "402 El usuario no tiene mensajes";
-                }
-            }else if(datosSeparados[0].equals("3")){
-                correoDestino = datosSeparados[1];
-                correoRecibido = datosSeparados[3];
-                asunto = datosSeparados[5];
-                mensajeEnviado = datosSeparados[7];
+                    usuarioCorrecto = usuarios.compruebaCombinacionEmailPass(correoRecibido, passwordRecibida);
 
-                usuarioYaRegistrado = usuarios.existeCorreo(correoDestino);
+                    if(usuarioCorrecto){
+                        respuesta = "201 OK";
+                    }else{
+                        respuesta = "401 ERROR Usuario o contraseña incorrectos";
+                    }
+                }else if (datosSeparados[0].equals("2")){
+                    correoRecibido = datosSeparados[2];
 
-                if(usuarioYaRegistrado){
-                    mensajes.aniadirMensaje(new MensajeCorreo(correoRecibido, correoDestino, asunto, mensajeEnviado));
-                    respuesta = "203 OK";
-                }else{
-                    respuesta = "403 ERROR Usuario no existe";
-                }
-            }else if(datosSeparados[0].equals("4")){
-                correoRecibido = datosSeparados[1];
-
-                if(correoRecibido != ""){
                     ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
-                    respuesta = recibidos.toString();
-                }else{
-                    respuesta = "404 ERROR Cliente no autenticado";
+
+                    if(recibidos.size() > 0){
+                        respuesta = "202" + recibidos.toString();
+                    }else{
+                        respuesta = "402 El usuario no tiene mensajes";
+                    }
+                }else if(datosSeparados[0].equals("3")){
+                    correoDestino = datosSeparados[1];
+                    correoRecibido = datosSeparados[3];
+                    asunto = datosSeparados[5];
+                    mensajeEnviado = datosSeparados[7];
+
+                    usuarioYaRegistrado = usuarios.existeCorreo(correoDestino);
+
+                    if(usuarioYaRegistrado){
+                        mensajes.aniadirMensaje(new MensajeCorreo(correoRecibido, correoDestino, asunto, mensajeEnviado));
+                        respuesta = "203 OK";
+                    }else{
+                        respuesta = "403 ERROR Usuario no existe";
+                    }
+                }else if(datosSeparados[0].equals("4")){
+                    correoRecibido = datosSeparados[1];
+
+                    if(correoRecibido != ""){
+                        ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+                        respuesta = recibidos.toString();
+                    }else{
+                        respuesta = "404 ERROR Cliente no autenticado";
+                    }
+                }else if(datosSeparados[0].equals("1")){
+                    break;
                 }
             }
             
             // Escribimos la respuesta
-            outPrinter.println(respuesta);			
+            outPrinter.println(respuesta);		
 			
 		} catch (IOException e) {
 			System.err.println("Error al obtener los flujso de entrada/salida.");

@@ -21,6 +21,7 @@ public class UsuariosCorreo{
         for(int i = 0; i < usuarios.size(); ++i){
             if(usuarios.get(i).getEmail().equals(correo)){
                 if(usuarios.get(i).getPassword().equals(password)){
+                    System.out.println("hola");
                     return true;
                 }
             }
