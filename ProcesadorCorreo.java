@@ -7,6 +7,8 @@ import java.util.Random;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.stream.Collectors; 
 
 
 //
@@ -25,13 +27,9 @@ public class ProcesadorCorreo extends Thread {
     private UsuariosCorreo usuarios = new UsuariosCorreo();
     private MensajesCorreo mensajes = new MensajesCorreo();
 	
-	// Para que la respuesta sea siempre diferente, usamos un generador de números aleatorios.
-	private Random random;
-	
 	// Constructor que tiene como parámetro una referencia al socket abierto en por otra clase
 	public ProcesadorCorreo(Socket socketServicio) {
 		this.socketServicio=socketServicio;
-		random=new Random();
 	}
 
 	public void run(){
@@ -49,7 +47,6 @@ public class ProcesadorCorreo extends Thread {
         String passwordRecibida;
         boolean usuarioYaRegistrado = false;
         boolean usuarioCorrecto = false;
-        String asunto;
         String mensajeEnviado;
 		
 		// Array de bytes para enviar la respuesta. Podemos reservar memoria cuando vayamos a enviarla:
@@ -74,9 +71,6 @@ public class ProcesadorCorreo extends Thread {
                     correoRecibido = datosSeparados[2];
                     passwordRecibida = datosSeparados[4];
 
-                    System.out.println(correoRecibido);
-                    System.out.println(passwordRecibida);
-
                     usuarioYaRegistrado = usuarios.existeCorreo(correoRecibido);
                     
                     if(!usuarioYaRegistrado){
@@ -89,9 +83,6 @@ public class ProcesadorCorreo extends Thread {
                     correoRecibido = datosSeparados[2];
                     passwordRecibida = datosSeparados[4];
 
-                    System.out.println(correoRecibido);
-                    System.out.println(passwordRecibida);
-
                     usuarioCorrecto = usuarios.compruebaCombinacionEmailPass(correoRecibido, passwordRecibida);
 
                     if(usuarioCorrecto){
@@ -102,43 +93,49 @@ public class ProcesadorCorreo extends Thread {
                 }else if (datosSeparados[0].equals("2")){
                     correoRecibido = datosSeparados[2];
 
-                    ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+                    MensajesCorreo recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
 
-                    if(recibidos.size() > 0){
-                        respuesta = "202" + recibidos.toString();
+                    if(recibidos.getNumMensajes() > 0){
+                        respuesta = "202 " + recibidos.toString();
                     }else{
                         respuesta = "402 El usuario no tiene mensajes";
                     }
                 }else if(datosSeparados[0].equals("3")){
-                    correoDestino = datosSeparados[1];
-                    correoRecibido = datosSeparados[3];
-                    asunto = datosSeparados[5];
-                    mensajeEnviado = datosSeparados[7];
+                    correoDestino = datosSeparados[2];
+                    correoRecibido = datosSeparados[4];
+                    String []mensaje = new String[datosSeparados.length - 6];
+
+                    for(int i = 6; i < datosSeparados.length; ++i){
+                        mensaje[i-6] = datosSeparados[i];
+                    }
+
+                    mensajeEnviado = Arrays.stream(mensaje).collect(Collectors.joining(" "));
 
                     usuarioYaRegistrado = usuarios.existeCorreo(correoDestino);
 
                     if(usuarioYaRegistrado){
-                        mensajes.aniadirMensaje(new MensajeCorreo(correoRecibido, correoDestino, asunto, mensajeEnviado));
+                        mensajes.aniadirMensaje(new MensajeCorreo(correoRecibido, correoDestino, mensajeEnviado));
                         respuesta = "203 OK";
                     }else{
                         respuesta = "403 ERROR Usuario no existe";
                     }
                 }else if(datosSeparados[0].equals("4")){
-                    correoRecibido = datosSeparados[1];
+                    correoRecibido = datosSeparados[2];
 
-                    if(correoRecibido != ""){
-                        ArrayList<MensajeCorreo> recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
-                        respuesta = recibidos.toString();
+                    MensajesCorreo recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+
+                    if(recibidos.getNumMensajes() > 0){
+                        respuesta = "204 " + recibidos.toString();
+                        System.out.println(respuesta);
                     }else{
-                        respuesta = "404 ERROR Cliente no autenticado";
+                        respuesta = "404 ERROR Cliente no tiene mensajes enviados";
                     }
-                }else if(datosSeparados[0].equals("1")){
+                }else if(datosSeparados[0].equals("10")){
                     break;
                 }
-            }
             
-            // Escribimos la respuesta
-            outPrinter.println(respuesta);		
+                outPrinter.println(respuesta);	
+            }	
 			
 		} catch (IOException e) {
 			System.err.println("Error al obtener los flujso de entrada/salida.");

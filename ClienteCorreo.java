@@ -1,14 +1,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.stream.Collectors; 
-import java.util.stream.Stream;
 import java.util.Arrays;
 
 public class ClienteCorreo {
@@ -120,7 +117,7 @@ public class ClienteCorreo {
 						case 3:
 							conectado=false;
 							logeado=true;
-							buferEnvio="1";
+							buferEnvio="10";
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 						break;
@@ -135,6 +132,7 @@ public class ClienteCorreo {
 						accion=myObj.nextInt();
 					}
 
+					myObj.nextLine();
 					switch (accion){
 						case 1:
 							buferEnvio="2 INBOX ";
@@ -142,40 +140,32 @@ public class ClienteCorreo {
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
-							System.out.println("hola");
-							System.out.println(buferEnvio);
-
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
-
-							System.out.println("hola");
 
 							if(mensaje[0].equals("202")){
 								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
+								mensajeresultado = mensajeresultado.substring(1);
+								mensajeresultado = mensajeresultado.replace(';', '\n');
 								System.out.println(mensajeresultado);
 							}else{
 								if(mensaje[0].equals("402")){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
 									System.out.println("ERROR: No hay mensajes");
 								}
 							}
+
+							mensajeresultado = "";
 						break;
 						case 2:
 							buferEnvio="3 SENDTO ";
-							while(gmaildestino==""){
+							while(gmaildestino.equals("")){
 								System.out.println("Dime el gmail del destinatario");
 								gmaildestino=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+ gmaildestino + " FROM "+gmail+" SUBJECT ";
+							buferEnvio=buferEnvio+ gmaildestino + " FROM "+gmail;
 
-							while(mensajeresultado==""){
-								System.out.println("Dime el asunto del mensaje");
-								mensajeresultado=myObj.nextLine();
-							}
-							buferEnvio=buferEnvio + mensajeresultado;
-							mensajeresultado="";
-
-							while(mensajeresultado==""){
+							while(mensajeresultado.equals("")){
 								System.out.println("Dime el mensaje");
 								mensajeresultado=myObj.nextLine();
 							}
@@ -194,6 +184,9 @@ public class ClienteCorreo {
 									gmaildestino="";
 								}
 							}
+
+							gmaildestino = "";
+							mensajeresultado = "";
 						break;
 						case 3:
 							buferEnvio="4 OUTBOX "+ gmail;
@@ -205,16 +198,18 @@ public class ClienteCorreo {
 							if(mensaje[0].equals("204")){
 								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
+								mensajeresultado = mensajeresultado.substring(1);
+								mensajeresultado = mensajeresultado.replace(';', '\n');
 								System.out.println(mensajeresultado);
-							}else{
-								if(mensaje[0].equals("404")){		//No va a pasar porque obligo a autenticarse antes pero por si cambia la interfaz
-									System.out.println("ERROR: gmail incorrecto");
-								}
+							}else if(mensaje[0].equals("404")){
+								System.out.println("ERROR: No hay mensajes");
 							}
+
+							mensajeresultado = "";
 						break;
 						case 4:
 							conectado=false;
-							buferEnvio="1";
+							buferEnvio="10";
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 						break;
