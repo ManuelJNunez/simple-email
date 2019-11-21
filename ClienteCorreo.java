@@ -57,11 +57,13 @@ public class ClienteCorreo {
 						case 1:
 							buferEnvio="0 REGISTER ";
 
+							myObj.nextLine();
+
 							while(gmail==""){
 								System.out.println("Dime tu gmail");
 								gmail=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+gmail+" PASS";
+							buferEnvio=buferEnvio+gmail+" PASS ";
 
 							while(contrasena==""){
 								System.out.println("Dime tu contrasena");
@@ -69,11 +71,14 @@ public class ClienteCorreo {
 							}
 							buferEnvio=buferEnvio+contrasena;
 
+							System.out.println(buferEnvio);
+
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
+							System.out.println(mensaje[0]);
 							if(mensaje[0]=="200"){
 								logeado=true;
 								System.out.println("Registrado con exito");
@@ -91,7 +96,7 @@ public class ClienteCorreo {
 								System.out.println("Dime tu gmail");
 								gmail=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+gmail+" PASS";
+							buferEnvio=buferEnvio+gmail+" PASS ";
 
 							while(contrasena==""){
 								System.out.println("Dime tu contrasena");

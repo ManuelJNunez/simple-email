@@ -64,11 +64,11 @@ public class ProcesadorCorreo extends Thread {
             inReader = new BufferedReader(new InputStreamReader(inputStream));
             
             // Leemos una petición de entrada y generamos respuesta
-			datosRecibidos = inReader.readLine();
+            datosRecibidos = inReader.readLine();
             
             datosSeparados = datosRecibidos.split(" ");
 
-            if(datosSeparados[0] == "0"){
+            if(datosSeparados[0].equals("0")){
                 correoRecibido = datosSeparados[2];
                 passwordRecibida = datosSeparados[4];
 
@@ -80,7 +80,7 @@ public class ProcesadorCorreo extends Thread {
                 }else{
                     respuesta = "400 ERROR Este email ya ha sido registrado";
                 }
-            }else if(datosSeparados[0] == "1"){
+            }else if(datosSeparados[0].equals("1")){
                 correoRecibido = datosSeparados[2];
                 passwordRecibida = datosSeparados[4];
 
@@ -91,7 +91,7 @@ public class ProcesadorCorreo extends Thread {
                 }else{
                     respuesta = "401 ERROR Usuario o contraseña incorrectos";
                 }
-            }else if (datosSeparados[0] == "2"){
+            }else if (datosSeparados[0].equals("2")){
                 correoRecibido = datosSeparados[2];
 
                 if(correoRecibido != ""){
@@ -101,7 +101,7 @@ public class ProcesadorCorreo extends Thread {
                 }else{
                     respuesta = "402 ERROR Cliente no identificado";
                 }
-            }else if(datosSeparados[0] == "3"){
+            }else if(datosSeparados[0].equals("3")){
                 correoDestino = datosSeparados[1];
                 correoRecibido = datosSeparados[3];
                 asunto = datosSeparados[5];
@@ -115,7 +115,7 @@ public class ProcesadorCorreo extends Thread {
                 }else{
                     respuesta = "403 ERROR Usuario no existe";
                 }
-            }else if(datosSeparados[0] == "4"){
+            }else if(datosSeparados[0].equals("4")){
                 correoRecibido = datosSeparados[1];
 
                 if(correoRecibido != ""){
