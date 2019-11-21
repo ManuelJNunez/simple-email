@@ -120,6 +120,9 @@ public class ClienteCorreo {
 						case 3:
 							conectado=false;
 							logeado=true;
+							buferEnvio="1";
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
 						break;
 					}
 				}
@@ -141,8 +144,14 @@ public class ClienteCorreo {
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
+							System.out.println("hola");
+							System.out.println(buferEnvio);
+
 							buferRecepcion = inReader.readLine();
 							mensaje=buferRecepcion.split(" ");
+
+							System.out.println("hola");
+
 							if(mensaje[0].equals("202")){
 								mensaje[0]="";
 								mensajeresultado=Arrays.stream(mensaje).collect(Collectors.joining(" "));
@@ -207,6 +216,9 @@ public class ClienteCorreo {
 						break;
 						case 4:
 							conectado=false;
+							buferEnvio="1";
+							outPrinter.println(buferEnvio);
+							outPrinter.flush();
 						break;
 						}
 
