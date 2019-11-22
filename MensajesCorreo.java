@@ -15,6 +15,18 @@ public class MensajesCorreo{
         return recibidos;
     }
 
+    MensajesCorreo getMensajesEnviadosPor(String correo){
+        MensajesCorreo recibidos = new MensajesCorreo();
+
+        for(int i = 0; i < mensajes.size(); ++i){
+            if(mensajes.get(i).getEmisor().equals(correo)){
+                recibidos.aniadirMensaje(mensajes.get(i));
+            }
+        }
+
+        return recibidos;
+    }
+
     void aniadirMensaje(MensajeCorreo mensaje){
         mensajes.add(mensaje);
     }

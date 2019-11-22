@@ -5,7 +5,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-import java.util.stream.Collectors; 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import java.util.Arrays;
 
 public class ClienteCorreo {
@@ -21,8 +24,8 @@ public class ClienteCorreo {
 		int port=5555;
 
 		int accion;
-		String gmail="";
-		String gmaildestino="";
+		String correo="";
+		String correodestino="";
 		String contrasena="";		
 		String []mensaje;
 		String mensajeresultado="";
@@ -32,6 +35,12 @@ public class ClienteCorreo {
 		// Socket para la conexión TCP
 		Socket socketServicio=null;
 		Scanner myObj = new Scanner(System.in);
+
+		//Encontrada en https://howtodoinjava.com/regex/java-regex-validate-email-address/
+		String regex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(correo);
 		
 		try {
 			// Creamos un socket que se conecte a "host" y "port":
@@ -57,11 +66,12 @@ public class ClienteCorreo {
 							buferEnvio="0 REGISTER ";
 
 
-							while(gmail.equals("")){
-								System.out.println("Dime tu gmail");
-								gmail=myObj.nextLine();
+							while(correo.equals("") || !matcher.matches()){
+								System.out.println("Dime tu correo");
+								correo=myObj.nextLine();
+								matcher = pattern.matcher(correo);
 							}
-							buferEnvio=buferEnvio+gmail+" PASS ";
+							buferEnvio=buferEnvio+correo+" PASS ";
 
 							while(contrasena.equals("")){
 								System.out.println("Dime tu contrasena");
@@ -80,18 +90,18 @@ public class ClienteCorreo {
 							}else{
 								if(mensaje[0].equals("400")){
 									System.out.println("ERROR: Ese usuario ya está registrado");
-									gmail="";
+									correo="";
 									contrasena="";
 								}
 							}
 						break;
 						case 2:
 							buferEnvio="1 LOGIN ";
-							while(gmail.equals("")){
-								System.out.println("Dime tu gmail");
-								gmail=myObj.nextLine();
+							while(correo.equals("")){
+								System.out.println("Dime tu correo");
+								correo=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+gmail+" PASS ";
+							buferEnvio=buferEnvio+correo+" PASS ";
 
 							while(contrasena.equals("")){
 								System.out.println("Dime tu contrasena");
@@ -109,7 +119,7 @@ public class ClienteCorreo {
 							}else{
 								if(mensaje[0].equals("401")){
 									System.out.println("ERROR: contrasena incorrecta o no existe el usuario");
-									gmail="";
+									correo="";
 									contrasena="";
 								}
 							}
@@ -118,13 +128,22 @@ public class ClienteCorreo {
 							conectado=false;
 							logeado=true;
 							buferEnvio="10";
+
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
-						break;
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+
+							if(!mensaje[0].equals("1000")){
+								System.out.println("La conexión no se cerró con éxito");
+							}
+
+							break;
 					}
 				}
 
-				if(conectado){		//El usuario ya va ha estar identificado el gmail tiene que estar bien
+				if(conectado){		//El usuario ya va ha estar identificado el correo tiene que estar bien
 					System.out.println("Quieres ver tu bandeja de entrada(1), enviar un mensaje(2), ver tu bandeja de salida(3) o salir(4)");
 					accion=myObj.nextInt();
 					while(accion!=1 && accion!=2 && accion!=3 && accion !=4 ){
@@ -136,7 +155,7 @@ public class ClienteCorreo {
 					switch (accion){
 						case 1:
 							buferEnvio="2 INBOX ";
-							buferEnvio=buferEnvio+gmail;
+							buferEnvio=buferEnvio+correo;
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
@@ -159,11 +178,11 @@ public class ClienteCorreo {
 						break;
 						case 2:
 							buferEnvio="3 SENDTO ";
-							while(gmaildestino.equals("")){
-								System.out.println("Dime el gmail del destinatario");
-								gmaildestino=myObj.nextLine();
+							while(correodestino.equals("")){
+								System.out.println("Dime el correo del destinatario");
+								correodestino=myObj.nextLine();
 							}
-							buferEnvio=buferEnvio+ gmaildestino + " FROM "+gmail;
+							buferEnvio=buferEnvio+ correodestino + " FROM "+correo;
 
 							while(mensajeresultado.equals("")){
 								System.out.println("Dime el mensaje");
@@ -181,15 +200,15 @@ public class ClienteCorreo {
 							}else{
 								if(mensaje[0].equals("403")){
 									System.out.println("ERROR: destinatario incorrecto");
-									gmaildestino="";
+									correodestino="";
 								}
 							}
 
-							gmaildestino = "";
+							correodestino = "";
 							mensajeresultado = "";
 						break;
 						case 3:
-							buferEnvio="4 OUTBOX "+ gmail;
+							buferEnvio="4 OUTBOX "+ correo;
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
 
@@ -212,7 +231,15 @@ public class ClienteCorreo {
 							buferEnvio="10";
 							outPrinter.println(buferEnvio);
 							outPrinter.flush();
-						break;
+
+							buferRecepcion = inReader.readLine();
+							mensaje=buferRecepcion.split(" ");
+
+							if(!mensaje[0].equals("1000")){
+								System.out.println("La conexión no se cerró con éxito");
+							}
+
+							break;
 						}
 
 						accion = 0;

@@ -2,8 +2,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Random;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -24,14 +22,17 @@ public class ProcesadorCorreo extends Thread {
 	private OutputStream outputStream;
 	private PrintWriter outPrinter;
     private BufferedReader inReader;
-    private UsuariosCorreo usuarios = new UsuariosCorreo();
-    private MensajesCorreo mensajes = new MensajesCorreo();
+    private UsuariosCorreo usuarios;
+    private MensajesCorreo mensajes;
 	
 	// Constructor que tiene como parámetro una referencia al socket abierto en por otra clase
-	public ProcesadorCorreo(Socket socketServicio) {
-		this.socketServicio=socketServicio;
+	public ProcesadorCorreo(Socket socketServicio, MensajesCorreo mensajes, UsuariosCorreo usuarios) {
+        this.socketServicio=socketServicio;
+        this.usuarios = usuarios;
+        this.mensajes = mensajes;
 	}
 
+    @Override
 	public void run(){
 		procesa();
 	}
@@ -122,19 +123,22 @@ public class ProcesadorCorreo extends Thread {
                 }else if(datosSeparados[0].equals("4")){
                     correoRecibido = datosSeparados[2];
 
-                    MensajesCorreo recibidos = mensajes.getMensajesRecibidosPor(correoRecibido);
+                    MensajesCorreo recibidos = mensajes.getMensajesEnviadosPor(correoRecibido);
 
                     if(recibidos.getNumMensajes() > 0){
                         respuesta = "204 " + recibidos.toString();
-                        System.out.println(respuesta);
                     }else{
                         respuesta = "404 ERROR Cliente no tiene mensajes enviados";
                     }
                 }else if(datosSeparados[0].equals("10")){
-                    break;
+                    respuesta = "1000 OK";
                 }
             
-                outPrinter.println(respuesta);	
+                outPrinter.println(respuesta);
+
+                if(respuesta.split(" ")[0].equals("1000")){
+                    break;
+                }
             }	
 			
 		} catch (IOException e) {
